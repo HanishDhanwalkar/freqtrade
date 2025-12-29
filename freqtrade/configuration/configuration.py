@@ -10,9 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from freqtrade import constants
-from freqtrade.configuration.deprecated_settings import process_temporary_deprecated_settings
 from freqtrade.configuration.directory_operations import create_datadir, create_userdata_dir
-from freqtrade.configuration.environment_vars import environment_vars_to_dict
 from freqtrade.configuration.load_config import load_file, load_from_files
 from freqtrade.constants import Config
 from freqtrade.enums import (
@@ -79,10 +77,6 @@ class Configuration:
         # Load environment variables
         from freqtrade.commands.arguments import NO_CONF_ALLOWED
 
-        if self.args.get("command") not in NO_CONF_ALLOWED:
-            env_data = environment_vars_to_dict()
-            config = deep_merge_dicts(env_data, config)
-
         # Normalize config
         if "internals" not in config:
             config["internals"] = {}
@@ -115,8 +109,6 @@ class Configuration:
         check_exchange(config, config.get("experimental", {}).get("block_bad_exchanges", True))
 
         self._resolve_pairs_list(config)
-
-        process_temporary_deprecated_settings(config)
 
         return config
 

@@ -14,7 +14,6 @@ from freqtrade.config_schema.config_schema import (
     SCHEMA_MINIMAL_WEBSERVER,
     SCHEMA_TRADE_REQUIRED,
 )
-from freqtrade.configuration.deprecated_settings import process_deprecated_setting
 from freqtrade.constants import UNLIMITED_STAKE_AMOUNT
 from freqtrade.enums import RunMode, TradingMode
 from freqtrade.exceptions import ConfigurationError
@@ -214,7 +213,6 @@ def validate_migrated_strategy_settings(conf: dict[str, Any]) -> None:
     _validate_order_types(conf)
     _validate_unfilledtimeout(conf)
     _validate_pricing_rules(conf)
-    _strategy_settings(conf)
 
 
 def _validate_time_in_force(conf: dict[str, Any]) -> None:
@@ -229,14 +227,7 @@ def _validate_time_in_force(conf: dict[str, Any]) -> None:
                 "DEPRECATED: Using 'buy' and 'sell' for time_in_force is deprecated."
                 "Please migrate your time_in_force settings to use 'entry' and 'exit'."
             )
-            process_deprecated_setting(
-                conf, "order_time_in_force", "buy", "order_time_in_force", "entry"
-            )
-
-            process_deprecated_setting(
-                conf, "order_time_in_force", "sell", "order_time_in_force", "exit"
-            )
-
+            
 
 def _validate_order_types(conf: dict[str, Any]) -> None:
     order_types = conf.get("order_types", {})
@@ -260,17 +251,6 @@ def _validate_order_types(conf: dict[str, Any]) -> None:
                 "DEPRECATED: Using 'buy' and 'sell' for order_types is deprecated."
                 "Please migrate your order_types settings to use 'entry' and 'exit' wording."
             )
-            for o, n in [
-                ("buy", "entry"),
-                ("sell", "exit"),
-                ("emergencysell", "emergency_exit"),
-                ("forcesell", "force_exit"),
-                ("forcebuy", "force_entry"),
-                ("emergencyexit", "emergency_exit"),
-                ("forceexit", "force_exit"),
-                ("forceentry", "force_entry"),
-            ]:
-                process_deprecated_setting(conf, "order_types", o, "order_types", n)
 
 
 def _validate_unfilledtimeout(conf: dict[str, Any]) -> None:
@@ -285,11 +265,6 @@ def _validate_unfilledtimeout(conf: dict[str, Any]) -> None:
                 "DEPRECATED: Using 'buy' and 'sell' for unfilledtimeout is deprecated."
                 "Please migrate your unfilledtimeout settings to use 'entry' and 'exit' wording."
             )
-            for o, n in [
-                ("buy", "entry"),
-                ("sell", "exit"),
-            ]:
-                process_deprecated_setting(conf, "unfilledtimeout", o, "unfilledtimeout", n)
 
 
 def _validate_pricing_rules(conf: dict[str, Any]) -> None:
@@ -301,24 +276,7 @@ def _validate_pricing_rules(conf: dict[str, Any]) -> None:
                 "DEPRECATED: Using 'ask_strategy' and 'bid_strategy' is deprecated."
                 "Please migrate your settings to use 'entry_pricing' and 'exit_pricing'."
             )
-            conf["entry_pricing"] = {}
-            for obj in list(conf.get("bid_strategy", {}).keys()):
-                if obj == "ask_last_balance":
-                    process_deprecated_setting(
-                        conf, "bid_strategy", obj, "entry_pricing", "price_last_balance"
-                    )
-                else:
-                    process_deprecated_setting(conf, "bid_strategy", obj, "entry_pricing", obj)
             del conf["bid_strategy"]
-
-            conf["exit_pricing"] = {}
-            for obj in list(conf.get("ask_strategy", {}).keys()):
-                if obj == "bid_last_balance":
-                    process_deprecated_setting(
-                        conf, "ask_strategy", obj, "exit_pricing", "price_last_balance"
-                    )
-                else:
-                    process_deprecated_setting(conf, "ask_strategy", obj, "exit_pricing", obj)
             del conf["ask_strategy"]
 
 
@@ -411,12 +369,3 @@ def _validate_orderflow(conf: dict[str, Any]) -> None:
             raise ConfigurationError(
                 "Orderflow is a required configuration key when using public trades."
             )
-
-
-def _strategy_settings(conf: dict[str, Any]) -> None:
-    process_deprecated_setting(conf, None, "use_sell_signal", None, "use_exit_signal")
-    process_deprecated_setting(conf, None, "sell_profit_only", None, "exit_profit_only")
-    process_deprecated_setting(conf, None, "sell_profit_offset", None, "exit_profit_offset")
-    process_deprecated_setting(
-        conf, None, "ignore_roi_if_buy_signal", None, "ignore_roi_if_entry_signal"
-    )

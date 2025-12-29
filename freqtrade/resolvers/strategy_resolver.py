@@ -175,14 +175,6 @@ class StrategyResolver(IResolver):
     @staticmethod
     def validate_strategy(strategy: IStrategy) -> IStrategy:
         if strategy.config.get("trading_mode", TradingMode.SPOT) != TradingMode.SPOT:
-            # Require new method
-            warn_deprecated_setting(strategy, "sell_profit_only", "exit_profit_only", True)
-            warn_deprecated_setting(strategy, "sell_profit_offset", "exit_profit_offset", True)
-            warn_deprecated_setting(strategy, "use_sell_signal", "use_exit_signal", True)
-            warn_deprecated_setting(
-                strategy, "ignore_roi_if_buy_signal", "ignore_roi_if_entry_signal", True
-            )
-
             if not check_override(strategy, IStrategy, "populate_entry_trend"):
                 raise OperationalException("`populate_entry_trend` must be implemented.")
             if not check_override(strategy, IStrategy, "populate_exit_trend"):
@@ -206,13 +198,6 @@ class StrategyResolver(IResolver):
         else:
             # TODO: Implementing one of the following methods should show a deprecation warning
             #  buy_trend and sell_trend, custom_sell
-            warn_deprecated_setting(strategy, "sell_profit_only", "exit_profit_only")
-            warn_deprecated_setting(strategy, "sell_profit_offset", "exit_profit_offset")
-            warn_deprecated_setting(strategy, "use_sell_signal", "use_exit_signal")
-            warn_deprecated_setting(
-                strategy, "ignore_roi_if_buy_signal", "ignore_roi_if_entry_signal"
-            )
-
             if not check_override(strategy, IStrategy, "populate_buy_trend") and not check_override(
                 strategy, IStrategy, "populate_entry_trend"
             ):
@@ -308,15 +293,6 @@ class StrategyResolver(IResolver):
             f"Impossible to load Strategy '{strategy_name}'. This class does not exist "
             "or contains Python code errors."
         )
-
-
-def warn_deprecated_setting(strategy: IStrategy, old: str, new: str, error=False):
-    if hasattr(strategy, old):
-        errormsg = f"DEPRECATED: Using '{old}' moved to '{new}'."
-        if error:
-            raise OperationalException(errormsg)
-        logger.warning(errormsg)
-        setattr(strategy, new, getattr(strategy, f"{old}"))
 
 
 def check_override(obj, parentclass, attribute: str):

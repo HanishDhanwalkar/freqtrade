@@ -20,7 +20,6 @@ from ccxt import TICK_SIZE
 from dateutil import parser
 from pandas import DataFrame, concat
 
-from freqtrade.configuration import remove_exchange_credentials
 from freqtrade.constants import (
     DEFAULT_AMOUNT_RESERVE_PERCENT,
     DEFAULT_TRADES_COLUMNS,
@@ -252,11 +251,6 @@ class Exchange:
             logger.info("Instance is running with dry_run enabled")
         logger.info(f"Using CCXT {ccxt.__version__}")
 
-        # Don't remove exchange credentials for dry-run or if always_require_api_keys is set
-        remove_exchange_credentials(
-            exchange_conf,
-            not self._ft_has["always_require_api_keys"] and config.get("dry_run", False),
-        )
         self.log_responses = exchange_conf.get("log_responses", False)
 
         # Assign this directly for easy access

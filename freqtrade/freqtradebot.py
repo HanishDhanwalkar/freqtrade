@@ -14,7 +14,6 @@ from typing import Any
 from schedule import Scheduler
 
 from freqtrade import constants
-from freqtrade.configuration import remove_exchange_credentials, validate_config_consistency
 from freqtrade.constants import BuySell, Config, EntryExecuteMode, ExchangeConfig, LongShort
 from freqtrade.data.converter import order_book_to_dataframe
 from freqtrade.data.dataprovider import DataProvider
@@ -90,8 +89,6 @@ class FreqtradeBot(LoggingMixin):
         # Init objects
         self.config = config
         exchange_config: ExchangeConfig = deepcopy(config["exchange"])
-        # Remove credentials from original exchange config to avoid accidental credential exposure
-        remove_exchange_credentials(config["exchange"], True)
 
         self.exchange = ExchangeResolver.load_exchange(
             self.config, exchange_config=exchange_config, load_leverage_tiers=True
@@ -99,8 +96,6 @@ class FreqtradeBot(LoggingMixin):
 
         self.strategy: IStrategy = StrategyResolver.load_strategy(self.config)
 
-        # Check config consistency here since strategies can set certain options
-        validate_config_consistency(config)
         # Re-validate exchange compatibility
         self.exchange.validate_config(self.config)
 
