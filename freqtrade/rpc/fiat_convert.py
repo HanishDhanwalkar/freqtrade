@@ -12,7 +12,7 @@ from requests.exceptions import RequestException
 from freqtrade.constants import SUPPORTED_FIAT, Config
 from freqtrade.mixins.logging_mixin import LoggingMixin
 from freqtrade.util import FtTTLCache
-from freqtrade.util.coin_gecko import FtCoinGeckoApi
+# from freqtrade.util.coin_gecko import FtCoinGeckoApi
 
 
 logger = logging.getLogger(__name__)
@@ -57,11 +57,11 @@ class CryptoToFiatConverter(LoggingMixin):
         self._pair_price: FtTTLCache = FtTTLCache(maxsize=500, ttl=6 * 60 * 60)
 
         _coingecko_config = config.get("coingecko", {})
-        self._coingecko = FtCoinGeckoApi(
-            api_key=_coingecko_config.get("api_key", ""),
-            is_demo=_coingecko_config.get("is_demo", True),
-            retries=1,
-        )
+        # self._coingecko = FtCoinGeckoApi(
+        #     api_key=_coingecko_config.get("api_key", ""),
+        #     is_demo=_coingecko_config.get("is_demo", True),
+        #     retries=1,
+        # )
         LoggingMixin.__init__(self, logger, 3600)
         self._load_cryptomap()
 
