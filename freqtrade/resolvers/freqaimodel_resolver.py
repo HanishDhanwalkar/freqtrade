@@ -9,7 +9,7 @@ from pathlib import Path
 
 from freqtrade.constants import USERPATH_FREQAIMODELS, Config
 from freqtrade.exceptions import OperationalException
-from freqtrade.freqai.freqai_interface import IFreqaiModel
+# from freqtrade.freqai.freqai_interface import IFreqaiModel
 from freqtrade.resolvers import IResolver
 
 
@@ -21,7 +21,7 @@ class FreqaiModelResolver(IResolver):
     This class contains all the logic to load custom hyperopt loss class
     """
 
-    object_type = IFreqaiModel
+    # object_type = IFreqaiModel
     object_type_str = "FreqaiModel"
     user_subdir = USERPATH_FREQAIMODELS
     initial_search_path = (
@@ -30,7 +30,7 @@ class FreqaiModelResolver(IResolver):
     extra_path = "freqaimodel_path"
 
     @staticmethod
-    def load_freqaimodel(config: Config) -> IFreqaiModel:
+    def load_freqaimodel(config: Config):
         """
         Load the custom class from config parameter
         :param config: configuration dictionary

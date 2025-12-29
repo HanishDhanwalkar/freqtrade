@@ -11,7 +11,7 @@ from torch.nn import functional as F
 
 from freqtrade.exceptions import OperationalException
 from freqtrade.freqai.base_models.BasePyTorchModel import BasePyTorchModel
-from freqtrade.freqai.data_kitchen import FreqaiDataKitchen
+# from freqtrade.freqai.data_kitchen import FreqaiDataKitchen
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,10 @@ class BasePyTorchClassifier(BasePyTorchModel):
         self.index_to_class_name = {}
 
     def predict(
-        self, unfiltered_df: DataFrame, dk: FreqaiDataKitchen, **kwargs
+        self, 
+        unfiltered_df: DataFrame, 
+        dk: FreqaiDataKitchen, 
+        **kwargs
     ) -> tuple[DataFrame, npt.NDArray[np.int_]]:
         """
         Filter the prediction features data and predict with it.

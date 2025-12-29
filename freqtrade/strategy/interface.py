@@ -1048,6 +1048,9 @@ class IStrategy(ABC, HyperStrategyMixin):
             **kwargs,
         )
         order_tag = ""
+        
+        stake_amount = None
+        
         if isinstance(resp, tuple):
             if len(resp) >= 1:
                 stake_amount = resp[0]
@@ -1055,6 +1058,10 @@ class IStrategy(ABC, HyperStrategyMixin):
                 order_tag = resp[1] or ""
         else:
             stake_amount = resp
+        
+        if stake_amount is None:
+            raise Exception("adjust_trade_position returned stake_amount = None")
+        
         return stake_amount, order_tag
 
     def __informative_pairs_freqai(self) -> ListPairsWithTimeframes:
