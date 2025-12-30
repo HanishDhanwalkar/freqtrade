@@ -203,7 +203,7 @@ class Wallets:
                 symbol,
                 position=size,
                 leverage=leverage,
-                collateral=collateral,
+                collateral=collateral, # type: ignore
                 side=position["side"],
             )
         self._positions = _parsed_positions

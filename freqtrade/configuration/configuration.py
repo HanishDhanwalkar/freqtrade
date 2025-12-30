@@ -224,7 +224,7 @@ class Configuration:
             config["exportfilename"] = None
         if config.get("exportfilename"):
             # ensure exportfilename is a Path object
-            config["exportfilename"] = Path(config["exportfilename"])
+            config["exportfilename"] = Path(config["exportfilename"]) # type: ignore
         config["exportdirectory"] = Path(config["exportdirectory"])
 
         if self.args.get("show_sensitive"):

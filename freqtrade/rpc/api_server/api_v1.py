@@ -118,7 +118,7 @@ def balance(rpc: RPC = Depends(get_rpc), config=Depends(get_config)):
     """Account Balances"""
     return rpc._rpc_balance(
         config["stake_currency"],
-        config.get("fiat_display_currency", ""),
+        config["fiat_display_currency"]
     )
 
 

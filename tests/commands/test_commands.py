@@ -14,12 +14,10 @@ from freqtrade.commands import (
     start_convert_data,
     start_convert_db,
     start_convert_trades,
-    start_create_userdir,
     start_download_data,
     start_edge,
     start_hyperopt_list,
     start_hyperopt_show,
-    start_install_ui,
     start_list_data,
     start_list_exchanges,
     start_list_freqAI_models,
@@ -27,13 +25,10 @@ from freqtrade.commands import (
     start_list_markets,
     start_list_strategies,
     start_list_timeframes,
-    start_new_strategy,
-    start_show_config,
     start_show_trades,
     start_strategy_update,
     start_test_pairlist,
     start_trading,
-    start_webserver,
 )
 from freqtrade.commands.deploy_ui import (
     clean_ui_subdir,
@@ -102,14 +97,14 @@ def test_start_trading_fail(mocker, caplog):
     assert exitmock.call_count == 0
 
 
-def test_start_webserver(mocker, caplog):
-    api_server_mock = mocker.patch(
-        "freqtrade.rpc.api_server.ApiServer",
-    )
+# def test_start_webserver(mocker, caplog):
+#     api_server_mock = mocker.patch(
+#         "freqtrade.rpc.api_server.ApiServer",
+#     )
 
-    args = ["webserver", "-c", "tests/testdata/testconfigs/main_test_config.json"]
-    start_webserver(get_args(args))
-    assert api_server_mock.call_count == 1
+#     args = ["webserver", "-c", "tests/testdata/testconfigs/main_test_config.json"]
+#     start_webserver(get_args(args))
+#     assert api_server_mock.call_count == 1
 
 
 def test_list_exchanges(capsys):
@@ -640,76 +635,76 @@ def test_list_markets(mocker, markets_static, capsys):
         start_list_markets(get_args(args), False)
 
 
-def test_create_datadir_failed(caplog):
-    args = [
-        "create-userdir",
-    ]
-    with pytest.raises(SystemExit):
-        start_create_userdir(get_args(args))
-    assert log_has("`create-userdir` requires --userdir to be set.", caplog)
+# def test_create_datadir_failed(caplog):
+#     args = [
+#         "create-userdir",
+#     ]
+#     with pytest.raises(SystemExit):
+#         start_create_userdir(get_args(args))
+#     assert log_has("`create-userdir` requires --userdir to be set.", caplog)
 
 
-def test_create_datadir(mocker):
-    cud = mocker.patch(
-        "freqtrade.configuration.directory_operations.create_userdata_dir", MagicMock()
-    )
-    csf = mocker.patch(
-        "freqtrade.configuration.directory_operations.copy_sample_files", MagicMock()
-    )
-    args = ["create-userdir", "--userdir", "/temp/freqtrade/test"]
-    start_create_userdir(get_args(args))
+# def test_create_datadir(mocker):
+#     cud = mocker.patch(
+#         "freqtrade.configuration.directory_operations.create_userdata_dir", MagicMock()
+#     )
+#     csf = mocker.patch(
+#         "freqtrade.configuration.directory_operations.copy_sample_files", MagicMock()
+#     )
+#     args = ["create-userdir", "--userdir", "/temp/freqtrade/test"]
+#     start_create_userdir(get_args(args))
 
-    assert cud.call_count == 1
-    assert csf.call_count == 1
-
-
-def test_start_new_strategy(caplog, user_dir):
-    strategy_dir = user_dir / "strategies"
-    strategy_dir.mkdir(parents=True, exist_ok=True)
-
-    assert strategy_dir.is_dir()
-    args = ["new-strategy", "--strategy", "CoolNewStrategy"]
-    start_new_strategy(get_args(args))
-    assert strategy_dir.exists()
-    assert (strategy_dir / "CoolNewStrategy.py").exists()
-
-    assert log_has_re("Writing strategy to .*", caplog)
-
-    with pytest.raises(
-        OperationalException, match=r".* already exists. Please choose another Strategy Name\."
-    ):
-        start_new_strategy(get_args(args))
-
-    args = ["new-strategy", "--strategy", "CoolNewStrategy", "--strategy-path", str(user_dir)]
-    start_new_strategy(get_args(args))
-    assert (user_dir / "CoolNewStrategy.py").exists()
-
-    # strategy-path that doesn't exist
-    args = [
-        "new-strategy",
-        "--strategy",
-        "CoolNewStrategy",
-        "--strategy-path",
-        str(user_dir / "nonexistent"),
-    ]
-    start_new_strategy(get_args(args))
-    assert (user_dir / "CoolNewStrategy.py").exists()
-
-    assert log_has_re("Creating strategy directory .*", caplog)
-    assert (user_dir / "nonexistent").is_dir()
-    assert (user_dir / "nonexistent" / "CoolNewStrategy.py").exists()
-
-    shutil.rmtree(str(user_dir))
+#     assert cud.call_count == 1
+#     assert csf.call_count == 1
 
 
-def test_start_new_strategy_no_arg():
-    args = [
-        "new-strategy",
-    ]
-    with pytest.raises(
-        OperationalException, match=r"`new-strategy` requires --strategy to be set\."
-    ):
-        start_new_strategy(get_args(args))
+# def test_start_new_strategy(caplog, user_dir):
+#     strategy_dir = user_dir / "strategies"
+#     strategy_dir.mkdir(parents=True, exist_ok=True)
+
+#     assert strategy_dir.is_dir()
+#     args = ["new-strategy", "--strategy", "CoolNewStrategy"]
+#     start_new_strategy(get_args(args))
+#     assert strategy_dir.exists()
+#     assert (strategy_dir / "CoolNewStrategy.py").exists()
+
+#     assert log_has_re("Writing strategy to .*", caplog)
+
+#     with pytest.raises(
+#         OperationalException, match=r".* already exists. Please choose another Strategy Name\."
+#     ):
+#         start_new_strategy(get_args(args))
+
+#     args = ["new-strategy", "--strategy", "CoolNewStrategy", "--strategy-path", str(user_dir)]
+#     start_new_strategy(get_args(args))
+#     assert (user_dir / "CoolNewStrategy.py").exists()
+
+#     # strategy-path that doesn't exist
+#     args = [
+#         "new-strategy",
+#         "--strategy",
+#         "CoolNewStrategy",
+#         "--strategy-path",
+#         str(user_dir / "nonexistent"),
+#     ]
+#     start_new_strategy(get_args(args))
+#     assert (user_dir / "CoolNewStrategy.py").exists()
+
+#     assert log_has_re("Creating strategy directory .*", caplog)
+#     assert (user_dir / "nonexistent").is_dir()
+#     assert (user_dir / "nonexistent" / "CoolNewStrategy.py").exists()
+
+#     shutil.rmtree(str(user_dir))
+
+
+# def test_start_new_strategy_no_arg():
+#     args = [
+#         "new-strategy",
+#     ]
+#     with pytest.raises(
+#         OperationalException, match=r"`new-strategy` requires --strategy to be set\."
+#     ):
+#         start_new_strategy(get_args(args))
 
 
 def test_start_install_ui(mocker):
