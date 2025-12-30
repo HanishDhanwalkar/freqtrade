@@ -100,7 +100,7 @@ class ApiServer(RPCHandler):
         del cls.__instance
         cls.__instance = None
         cls._has_rpc = False
-        cls._rpc = None
+        cls._rpc = None  # type: ignore
 
     def send_msg(self, msg: RPCSendMsg) -> None:
         """

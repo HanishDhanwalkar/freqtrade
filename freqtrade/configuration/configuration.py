@@ -73,10 +73,7 @@ class Configuration:
         """
         # Load all configs
         config: Config = load_from_files(self.args.get("config", []))
-
-        # Load environment variables
-        from freqtrade.commands.arguments import NO_CONF_ALLOWED
-
+        
         # Normalize config
         if "internals" not in config:
             config["internals"] = {}

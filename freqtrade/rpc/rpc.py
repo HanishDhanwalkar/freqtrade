@@ -112,7 +112,7 @@ class RPC:
 
         _freqtrade: FreqtradeBot
 
-    def __init__(self, freqtrade) -> None:
+    def __init__(self, freqtrade: FreqtradeBot) -> None:
         """
         Initializes all enabled rpc modules
         :param freqtrade: Instance of a freqtrade bot

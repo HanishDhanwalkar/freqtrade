@@ -8,7 +8,6 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends
 from fastapi.exceptions import HTTPException
 
-from freqtrade.configuration import remove_exchange_credentials
 from freqtrade.configuration.config_validation import validate_config_consistency
 from freqtrade.constants import Config
 from freqtrade.data.btanalysis import (
@@ -138,7 +137,6 @@ async def api_start_backtest(
         raise HTTPException(status_code=500, detail="base64 encoded strategies are not allowed.")
 
     btconfig = deepcopy(config)
-    remove_exchange_credentials(btconfig["exchange"], True)
     settings = dict(bt_settings)
     if settings.get("freqai", None) is not None:
         settings["freqai"] = dict(settings["freqai"])
