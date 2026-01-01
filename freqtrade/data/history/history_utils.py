@@ -9,7 +9,6 @@ from freqtrade.configuration import TimeRange
 from freqtrade.constants import (
     DATETIME_PRINT_FORMAT,
     DL_DATA_TIMEFRAMES,
-    DOCS_LINK,
     Config,
     ListPairsWithTimeframes,
     PairWithTimeframe,
@@ -756,7 +755,6 @@ def download_data(
         logger.warning(
             "No pairs available for download. "
             "Please make sure you're using the correct Pair naming for your selected trade mode. \n"
-            f"More info: {DOCS_LINK}/bot-basics/#pair-naming"
         )
         return
 

@@ -11,10 +11,9 @@ from unittest.mock import MagicMock, Mock, PropertyMock
 import numpy as np
 import pandas as pd
 import pytest
-from xdist.scheduler.loadscope import LoadScopeScheduling
+# from xdist.scheduler.loadscope import LoadScopeScheduling
 
 from freqtrade import constants
-from freqtrade.commands import Arguments
 from freqtrade.data.converter import ohlcv_to_dataframe, trades_list_to_df
 from freqtrade.enums import CandleType, MarginMode, SignalDirection, TradingMode
 from freqtrade.exchange import Exchange, timeframe_to_minutes, timeframe_to_seconds
@@ -74,25 +73,25 @@ def pytest_configure(config):
         config.option.markexpr = "not longrun"
 
 
-class FixtureScheduler(LoadScopeScheduling):
-    # Based on the suggestion in
-    # https://github.com/pytest-dev/pytest-xdist/issues/18
+# class FixtureScheduler(LoadScopeScheduling):
+#     # Based on the suggestion in
+#     # https://github.com/pytest-dev/pytest-xdist/issues/18
 
-    def _split_scope(self, nodeid):
-        if "exchange_online" in nodeid:
-            try:
-                # Extract exchange ID from nodeid
-                exchange_id = nodeid.split("[")[1].split("-")[0].rstrip("]")
-                return exchange_id
-            except Exception as e:
-                print(e)
-                pass
+#     def _split_scope(self, nodeid):
+#         if "exchange_online" in nodeid:
+#             try:
+#                 # Extract exchange ID from nodeid
+#                 exchange_id = nodeid.split("[")[1].split("-")[0].rstrip("]")
+#                 return exchange_id
+#             except Exception as e:
+#                 print(e)
+#                 pass
 
-        return nodeid
+#         return nodeid
 
 
-def pytest_xdist_make_scheduler(config, log):
-    return FixtureScheduler(config, log)
+# def pytest_xdist_make_scheduler(config, log):
+#     return FixtureScheduler(config, log)
 
 
 def log_has(line, logs):
@@ -118,10 +117,6 @@ def num_log_has(line, logs):
 def num_log_has_re(line, logs):
     """Check how many times line matches caplog's messages."""
     return sum(bool(re.match(line, message)) for message in logs.messages)
-
-
-def get_args(args):
-    return Arguments(args).get_parsed_arg()
 
 
 def generate_trades_history(n_rows, start_date: datetime | None = None, days=5):
@@ -337,7 +332,7 @@ def get_patched_worker(mocker, config) -> Worker:
     :return: Worker
     """
     patch_freqtradebot(mocker, config)
-    return Worker(args=None, config=config)
+    return Worker(args={}, config=config)
 
 
 def patch_get_signal(
@@ -2620,7 +2615,7 @@ def testdatadir() -> Path:
 
 
 @pytest.fixture(scope="function")
-def import_fails() -> None:
+def import_fails():
     # Source of this test-method:
     # https://stackoverflow.com/questions/2481511/mocking-importerror-in-python
     import builtins

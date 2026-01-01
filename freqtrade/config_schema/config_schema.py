@@ -1,6 +1,4 @@
-# Required json-schema for user specified config
-
-
+from freqtrade.enums import RPCMessageType
 from freqtrade.constants import (
     AVAILABLE_DATAHANDLERS,
     AVAILABLE_PAIRLISTS,
@@ -22,7 +20,6 @@ from freqtrade.constants import (
     UNLIMITED_STAKE_AMOUNT,
     WEBHOOK_FORMAT_OPTIONS,
 )
-from freqtrade.enums import RPCMessageType
 
 
 __MESSAGE_TYPE_DICT: dict[str, dict[str, str]] = {x: {"type": "object"} for x in RPCMessageType}

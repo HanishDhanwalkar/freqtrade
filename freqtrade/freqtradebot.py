@@ -9,14 +9,20 @@ from datetime import UTC, datetime, time, timedelta
 from math import isclose
 from threading import Lock
 from time import sleep
-from typing import Any
+from typing import Any, Dict, Sequence
 
 from schedule import Scheduler
 
 from freqtrade import constants
-from freqtrade.constants import BuySell, Config, EntryExecuteMode, ExchangeConfig, LongShort
 from freqtrade.data.converter import order_book_to_dataframe
 from freqtrade.data.dataprovider import DataProvider
+from freqtrade.constants import (
+    BuySell, 
+    Config, 
+    EntryExecuteMode, 
+    ExchangeConfig, 
+    LongShort
+)
 from freqtrade.enums import (
     ExitCheckTuple,
     ExitType,
@@ -57,7 +63,7 @@ from freqtrade.rpc.rpc_types import (
     RPCEntryMsg,
     RPCExitCancelMsg,
     RPCExitMsg,
-    RPCProtectionMsg,
+    RPCProtectionMsg
 )
 from freqtrade.strategy.interface import IStrategy
 from freqtrade.strategy.strategy_wrapper import strategy_safe_wrapper
@@ -187,7 +193,8 @@ class FreqtradeBot(LoggingMixin):
         Public method for users of this class (worker, etc.) to send notifications
         via RPC about changes in the bot status.
         """
-        self.rpc.send_msg({"type": msg_type, "status": msg})
+        _msg: Dict[str, Any] = {"type": msg_type, "status": msg}
+        self.rpc.send_msg(_msg)
 
     def cleanup(self) -> None:
         """
@@ -215,8 +222,6 @@ class FreqtradeBot(LoggingMixin):
         try:
             Trade.commit()
         except Exception:
-            # Exceptions here will be happening if the db disappeared.
-            # At which point we can no longer commit anyway.
             logger.exception("Error during cleanup")
 
     def startup(self) -> None:
@@ -310,7 +315,7 @@ class FreqtradeBot(LoggingMixin):
         open_trades = Trade.get_open_trades()
 
         if len(open_trades) != 0 and self.state != State.RELOAD_CONFIG:
-            msg = {
+            _msg = {
                 "type": RPCMessageType.WARNING,
                 "status": f"{len(open_trades)} open trades active.\n\n"
                 f"Handle these trades manually on {self.exchange.name}, "
@@ -318,7 +323,7 @@ class FreqtradeBot(LoggingMixin):
                 f"to handle open trades gracefully. \n"
                 f"{'Note: Trades are simulated (dry run).' if self.config['dry_run'] else ''}",
             }
-            self.rpc.send_msg(msg)
+            self.rpc.send_msg(_msg)
 
     def _refresh_active_whitelist(self, trades: list[Trade] | None = None) -> list[str]:
         """
@@ -440,7 +445,7 @@ class FreqtradeBot(LoggingMixin):
             # Updating open orders in dry-run does not make sense and will fail.
             return
 
-        trades: list[Trade] = Trade.get_closed_trades_without_assigned_fees()
+        trades: Sequence[Trade] = Trade.get_closed_trades_without_assigned_fees()
         for trade in trades:
             if not trade.is_open and not trade.fee_updated(trade.exit_side):
                 # Get sell fee
@@ -685,7 +690,7 @@ class FreqtradeBot(LoggingMixin):
                 return False
             stake_amount = self.wallets.get_trade_stake_amount(pair, self.config["max_open_trades"])
 
-            bid_check_dom = self.config.get("entry_pricing", {}).get("check_depth_of_market", {})
+            bid_check_dom: Dict[str, Any] = self.config.get("entry_pricing", {}).get("check_depth_of_market", {})
             if (bid_check_dom.get("enabled", False)) and (
                 bid_check_dom.get("bids_to_ask_delta", 0) > 0
             ):

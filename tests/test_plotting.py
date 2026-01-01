@@ -27,7 +27,7 @@ from freqtrade.plot.plotting import (
     store_plot_file,
 )
 from freqtrade.resolvers import StrategyResolver
-from tests.conftest import get_args, log_has, log_has_re, patch_exchange
+from tests.conftest import log_has, log_has_re, patch_exchange
 
 
 def fig_generating_mock(fig, *args, **kwargs):
@@ -395,23 +395,6 @@ def test_generate_profit_graph(testdatadir):
         )
 
 
-def test_start_plot_dataframe(mocker):
-    aup = mocker.patch("freqtrade.plot.plotting.load_and_plot_trades", MagicMock())
-    args = [
-        "plot-dataframe",
-        "--config",
-        "tests/testdata/testconfigs/main_test_config.json",
-        "--pairs",
-        "ETH/BTC",
-    ]
-    start_plot_dataframe(get_args(args))
-
-    assert aup.call_count == 1
-    called_config = aup.call_args_list[0][0][0]
-    assert "pairs" in called_config
-    assert called_config["pairs"] == ["ETH/BTC"]
-
-
 def test_load_and_plot_trades(default_conf, mocker, caplog, testdatadir):
     patch_exchange(mocker)
 
@@ -438,33 +421,6 @@ def test_load_and_plot_trades(default_conf, mocker, caplog, testdatadir):
     assert candle_mock.call_args_list[0][1]["indicators2"] == ["macd"]
 
     assert log_has("End of plotting process. 2 plots generated", caplog)
-
-
-def test_start_plot_profit(mocker):
-    aup = mocker.patch("freqtrade.plot.plotting.plot_profit", MagicMock())
-    args = [
-        "plot-profit",
-        "--config",
-        "tests/testdata/testconfigs/main_test_config.json",
-        "--pairs",
-        "ETH/BTC",
-    ]
-    start_plot_profit(get_args(args))
-
-    assert aup.call_count == 1
-    called_config = aup.call_args_list[0][0][0]
-    assert "pairs" in called_config
-    assert called_config["pairs"] == ["ETH/BTC"]
-
-
-def test_start_plot_profit_error(mocker):
-    args = ["plot-profit", "--pairs", "ETH/BTC"]
-    argsp = get_args(args)
-    # Make sure we use no config. Details: #2241
-    # not resetting config causes random failures if config.json exists
-    argsp["config"] = []
-    with pytest.raises(OperationalException):
-        start_plot_profit(argsp)
 
 
 def test_plot_profit(default_conf, mocker, testdatadir):

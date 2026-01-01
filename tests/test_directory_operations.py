@@ -1,4 +1,3 @@
-# pragma pylint: disable=missing-docstring, protected-access, invalid-name
 import os
 from pathlib import Path
 from unittest.mock import MagicMock

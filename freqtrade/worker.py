@@ -54,7 +54,7 @@ class Worker:
         # Init the instance of the bot
         self.freqtrade = FreqtradeBot(self._config)
 
-        internals_config = self._config.get("internals", {})
+        internals_config: dict[str, Any] = self._config.get("internals", {})
         self._throttle_secs = internals_config.get("process_throttle_secs", PROCESS_THROTTLE_SECS)
         self._heartbeat_interval = internals_config.get("heartbeat_interval", 60)
 

@@ -16,7 +16,7 @@ from pandas import DataFrame
 from sklearn.model_selection import train_test_split
 
 from freqtrade.configuration import TimeRange
-from freqtrade.constants import DOCS_LINK, ORDERFLOW_ADDED_COLUMNS, Config
+from freqtrade.constants import ORDERFLOW_ADDED_COLUMNS, Config
 from freqtrade.data.converter import reduce_dataframe_footprint
 from freqtrade.exceptions import OperationalException
 from freqtrade.exchange import timeframe_to_seconds
@@ -266,7 +266,6 @@ class FreqaiDataKitchen:
                     f"{self.pair}: all training data dropped due to NaNs. "
                     "You likely did not download enough training data prior "
                     "to your backtest timerange. Hint:\n"
-                    f"{DOCS_LINK}/freqai-running/"
                     "#downloading-data-to-cover-the-full-backtest-period"
                 )
             if (1 - len(filtered_df) / len(unfiltered_df)) > 0.1 and self.live:
@@ -813,10 +812,6 @@ class FreqaiDataKitchen:
                 "You are using the `populate_any_indicators()` function"
                 " which was deprecated on March 1, 2023. Please refer "
                 "to the strategy migration guide to use the new "
-                "feature_engineering_* methods: \n"
-                f"{DOCS_LINK}/strategy_migration/#freqai-strategy \n"
-                "And the feature_engineering_* documentation: \n"
-                f"{DOCS_LINK}/freqai-feature-engineering/"
             )
 
         tfs: list[str] = self.freqai_config["feature_parameters"].get("include_timeframes")

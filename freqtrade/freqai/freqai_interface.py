@@ -6,11 +6,10 @@ from collections import deque
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
-
-import datasieve.transforms as ds
 import numpy as np
 import pandas as pd
 import psutil
+import datasieve.transforms as ds
 from datasieve.pipeline import Pipeline
 from datasieve.transforms import SKLearnWrapper
 from numpy.typing import NDArray
@@ -18,7 +17,7 @@ from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler
 
 from freqtrade.configuration import TimeRange
-from freqtrade.constants import DOCS_LINK, Config
+from freqtrade.constants import Config
 from freqtrade.data.dataprovider import DataProvider
 from freqtrade.enums import RunMode
 from freqtrade.exceptions import OperationalException
@@ -995,8 +994,6 @@ class IFreqaiModel(ABC):
         logger.warning(
             f"Your model {self.__class__.__name__} relies on the deprecated"
             " data pipeline. Please update your model to use the new data pipeline."
-            " This can be achieved by following the migration guide at "
-            f"{DOCS_LINK}/strategy_migration/#freqai-new-data-pipeline"
         )
         dk.feature_pipeline = self.define_data_pipeline(threads=dk.thread_count)
         dd = dk.data_dictionary
@@ -1025,8 +1022,6 @@ class IFreqaiModel(ABC):
         logger.warning(
             f"Your model {self.__class__.__name__} relies on the deprecated"
             " data pipeline. Please update your model to use the new data pipeline."
-            " This can be achieved by following the migration guide at "
-            f"{DOCS_LINK}/strategy_migration/#freqai-new-data-pipeline"
         )
         dd = dk.data_dictionary
         dd["predict_features"], outliers, _ = dk.feature_pipeline.transform(

@@ -8,7 +8,6 @@ Note: Be careful with file-scoped imports in these subfiles.
 """
 
 from freqtrade.commands.analyze_commands import start_analysis_entries_exits
-from freqtrade.commands.arguments import Arguments
 from freqtrade.commands.data_commands import (
     start_convert_data,
     start_convert_trades,

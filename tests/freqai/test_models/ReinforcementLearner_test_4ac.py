@@ -14,7 +14,7 @@ class ReinforcementLearner_test_4ac(ReinforcementLearner):
     User created Reinforcement Learning Model prediction model.
     """
 
-    class MyRLEnv(Base4ActionRLEnv):
+    class MyRLEnv(Base4ActionRLEnv): # type: ignore
         """
         User can override any function in BaseRLEnv and gym.Env. Here the user
         sets a custom reward based on profit and trade duration.

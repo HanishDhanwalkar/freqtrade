@@ -1,6 +1,3 @@
-# pragma pylint: disable=W0603
-"""Wallet"""
-
 import logging
 from datetime import datetime, timedelta
 from typing import Literal, NamedTuple
