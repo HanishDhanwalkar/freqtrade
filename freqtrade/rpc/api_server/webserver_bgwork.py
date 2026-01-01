@@ -17,7 +17,7 @@ class JobsContainer(TypedDict):
     is_running: bool
     status: str
     progress: float | None
-    progress_tasks: NotRequired[dict[str, ProgressTask]]
+    progress_tasks: dict[str, ProgressTask]
     result: Any
     error: str | None
 

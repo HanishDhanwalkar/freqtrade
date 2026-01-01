@@ -309,16 +309,29 @@ class Backtesting:
         """
         self.progress.init_step(BacktestState.DATALOAD, 1)
 
-        data = history.load_data(
-            datadir=self.config["datadir"],
-            pairs=self.pairlists.whitelist,
-            timeframe=self.timeframe,
-            timerange=self.timerange,
-            startup_candles=self.required_startup,
-            fail_without_data=True,
-            data_format=self.config["dataformat_ohlcv"],
-            candle_type=self.config.get("candle_type_def", CandleType.SPOT),
-        )
+        try:
+            data = history.load_data(
+                datadir=self.config["datadir"],
+                pairs=self.pairlists.whitelist,
+                timeframe=self.timeframe,
+                timerange=self.timerange,
+                startup_candles=self.required_startup,
+                fail_without_data=True,
+                data_format=self.config["dataformat_ohlcv"],
+                candle_type=self.config.get("candle_type_def", CandleType.SPOT),
+            )
+        except OperationalException as e:
+            # Enhance error message with backtesting-specific context
+            whitelist_str = ", ".join(self.pairlists.whitelist) if self.pairlists.whitelist else "empty"
+            enhanced_msg = (
+                f"{str(e)}\n"
+                f"Backtesting context:\n"
+                f"  Pairlist whitelist: {whitelist_str}\n"
+                f"  Number of pairs in whitelist: {len(self.pairlists.whitelist)}\n"
+                f"  Exchange: {self._exchange_name}\n"
+                f"  Strategy: {self.config.get('strategy', 'not set')}\n"
+            )
+            raise OperationalException(enhanced_msg) from e
 
         min_date, max_date = history.get_timerange(data)
 

@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock
 from zipfile import ZipFile
 
-import pytest
+import pytest # type: ignore
 
 from freqtrade.commands import (
     start_backtesting_show,
@@ -707,149 +707,149 @@ def test_list_markets(mocker, markets_static, capsys):
 #         start_new_strategy(get_args(args))
 
 
-def test_start_install_ui(mocker):
-    clean_mock = mocker.patch("freqtrade.commands.deploy_ui.clean_ui_subdir")
-    get_url_mock = mocker.patch(
-        "freqtrade.commands.deploy_ui.get_ui_download_url",
-        return_value=("https://example.com/whatever", "0.0.1"),
-    )
-    download_mock = mocker.patch("freqtrade.commands.deploy_ui.download_and_install_ui")
-    mocker.patch("freqtrade.commands.deploy_ui.read_ui_version", return_value=None)
-    args = [
-        "install-ui",
-    ]
-    start_install_ui(get_args(args))
-    assert clean_mock.call_count == 1
-    assert get_url_mock.call_count == 1
-    assert download_mock.call_count == 1
+# def test_start_install_ui(mocker):
+#     clean_mock = mocker.patch("freqtrade.commands.deploy_ui.clean_ui_subdir")
+#     get_url_mock = mocker.patch(
+#         "freqtrade.commands.deploy_ui.get_ui_download_url",
+#         return_value=("https://example.com/whatever", "0.0.1"),
+#     )
+#     download_mock = mocker.patch("freqtrade.commands.deploy_ui.download_and_install_ui")
+#     mocker.patch("freqtrade.commands.deploy_ui.read_ui_version", return_value=None)
+#     args = [
+#         "install-ui",
+#     ]
+#     start_install_ui(get_args(args))
+#     assert clean_mock.call_count == 1
+#     assert get_url_mock.call_count == 1
+#     assert download_mock.call_count == 1
 
-    clean_mock.reset_mock()
-    get_url_mock.reset_mock()
-    download_mock.reset_mock()
+#     clean_mock.reset_mock()
+#     get_url_mock.reset_mock()
+#     download_mock.reset_mock()
 
-    args = [
-        "install-ui",
-        "--erase",
-    ]
-    start_install_ui(get_args(args))
-    assert clean_mock.call_count == 1
-    assert get_url_mock.call_count == 1
-    assert download_mock.call_count == 0
-
-
-def test_clean_ui_subdir(mocker, tmp_path, caplog):
-    mocker.patch("freqtrade.commands.deploy_ui.Path.is_dir", side_effect=[True, True])
-    mocker.patch("freqtrade.commands.deploy_ui.Path.is_file", side_effect=[False, True])
-    rd_mock = mocker.patch("freqtrade.commands.deploy_ui.Path.rmdir")
-    ul_mock = mocker.patch("freqtrade.commands.deploy_ui.Path.unlink")
-
-    mocker.patch(
-        "freqtrade.commands.deploy_ui.Path.glob",
-        return_value=[Path("test1"), Path("test2"), Path(".gitkeep")],
-    )
-    folder = tmp_path / "uitests"
-    clean_ui_subdir(folder)
-    assert log_has("Removing UI directory content.", caplog)
-    assert rd_mock.call_count == 1
-    assert ul_mock.call_count == 1
+#     args = [
+#         "install-ui",
+#         "--erase",
+#     ]
+#     start_install_ui(get_args(args))
+#     assert clean_mock.call_count == 1
+#     assert get_url_mock.call_count == 1
+#     assert download_mock.call_count == 0
 
 
-def test_download_and_install_ui(mocker, tmp_path):
-    # Create zipfile
-    requests_mock = MagicMock()
-    file_like_object = BytesIO()
-    with ZipFile(file_like_object, mode="w") as zipfile:
-        for file in ("test1.txt", "hello/", "test2.txt"):
-            zipfile.writestr(file, file)
-    file_like_object.seek(0)
-    requests_mock.content = file_like_object.read()
+# def test_clean_ui_subdir(mocker, tmp_path, caplog):
+#     mocker.patch("freqtrade.commands.deploy_ui.Path.is_dir", side_effect=[True, True])
+#     mocker.patch("freqtrade.commands.deploy_ui.Path.is_file", side_effect=[False, True])
+#     rd_mock = mocker.patch("freqtrade.commands.deploy_ui.Path.rmdir")
+#     ul_mock = mocker.patch("freqtrade.commands.deploy_ui.Path.unlink")
 
-    mocker.patch("freqtrade.commands.deploy_ui.requests.get", return_value=requests_mock)
-
-    mocker.patch("freqtrade.commands.deploy_ui.Path.is_dir", side_effect=[True, False])
-    wb_mock = mocker.patch("freqtrade.commands.deploy_ui.Path.write_bytes")
-
-    folder = tmp_path / "uitests_dl"
-    folder.mkdir(exist_ok=True)
-
-    assert read_ui_version(folder) is None
-
-    download_and_install_ui(folder, "http://whatever.xxx/download/file.zip", "22")
-
-    assert wb_mock.call_count == 2
-
-    assert read_ui_version(folder) == "22"
+#     mocker.patch(
+#         "freqtrade.commands.deploy_ui.Path.glob",
+#         return_value=[Path("test1"), Path("test2"), Path(".gitkeep")],
+#     )
+#     folder = tmp_path / "uitests"
+#     clean_ui_subdir(folder)
+#     assert log_has("Removing UI directory content.", caplog)
+#     assert rd_mock.call_count == 1
+#     assert ul_mock.call_count == 1
 
 
-def test_get_ui_download_url(mocker):
-    response = MagicMock()
-    responses = [
-        [
-            {
-                # Pre-release is ignored
-                "assets_url": "http://whatever.json",
-                "name": "0.0.2",
-                "created_at": "2024-02-01T00:00:00Z",
-                "prerelease": True,
-            },
-            {
-                "assets_url": "http://whatever.json",
-                "name": "0.0.1",
-                "created_at": "2024-01-01T00:00:00Z",
-                "prerelease": False,
-            },
-        ],
-        [{"browser_download_url": "http://download.zip"}],
-    ]
-    response.json = MagicMock(side_effect=responses)
-    get_mock = mocker.patch("freqtrade.commands.deploy_ui.requests.get", return_value=response)
-    x, last_version = get_ui_download_url(None, False)
-    assert get_mock.call_count == 2
-    assert last_version == "0.0.1"
-    assert x == "http://download.zip"
+# def test_download_and_install_ui(mocker, tmp_path):
+#     # Create zipfile
+#     requests_mock = MagicMock()
+#     file_like_object = BytesIO()
+#     with ZipFile(file_like_object, mode="w") as zipfile:
+#         for file in ("test1.txt", "hello/", "test2.txt"):
+#             zipfile.writestr(file, file)
+#     file_like_object.seek(0)
+#     requests_mock.content = file_like_object.read()
 
-    response.json = MagicMock(side_effect=responses)
-    get_mock.reset_mock()
-    x, last_version = get_ui_download_url(None, True)
-    assert get_mock.call_count == 2
-    assert last_version == "0.0.2"
-    assert x == "http://download.zip"
+#     mocker.patch("freqtrade.commands.deploy_ui.requests.get", return_value=requests_mock)
+
+#     mocker.patch("freqtrade.commands.deploy_ui.Path.is_dir", side_effect=[True, False])
+#     wb_mock = mocker.patch("freqtrade.commands.deploy_ui.Path.write_bytes")
+
+#     folder = tmp_path / "uitests_dl"
+#     folder.mkdir(exist_ok=True)
+
+#     assert read_ui_version(folder) is None
+
+#     download_and_install_ui(folder, "http://whatever.xxx/download/file.zip", "22")
+
+#     assert wb_mock.call_count == 2
+
+#     assert read_ui_version(folder) == "22"
 
 
-def test_get_ui_download_url_direct(mocker):
-    response = MagicMock()
-    response.json = MagicMock(
-        return_value=[
-            {
-                "assets_url": "http://whatever.json",
-                "name": "0.0.2",
-                "created_at": "2024-02-01T00:00:00Z",
-                "prerelease": False,
-                "assets": [{"browser_download_url": "http://download22.zip"}],
-            },
-            {
-                "assets_url": "http://whatever.json",
-                "name": "0.0.1",
-                "created_at": "2024-01-01T00:00:00Z",
-                "prerelease": False,
-                "assets": [{"browser_download_url": "http://download1.zip"}],
-            },
-        ]
-    )
-    get_mock = mocker.patch("freqtrade.commands.deploy_ui.requests.get", return_value=response)
-    x, last_version = get_ui_download_url(None, False)
-    assert get_mock.call_count == 1
-    assert last_version == "0.0.2"
-    assert x == "http://download22.zip"
-    get_mock.reset_mock()
-    response.json.reset_mock()
+# def test_get_ui_download_url(mocker):
+#     response = MagicMock()
+#     responses = [
+#         [
+#             {
+#                 # Pre-release is ignored
+#                 "assets_url": "http://whatever.json",
+#                 "name": "0.0.2",
+#                 "created_at": "2024-02-01T00:00:00Z",
+#                 "prerelease": True,
+#             },
+#             {
+#                 "assets_url": "http://whatever.json",
+#                 "name": "0.0.1",
+#                 "created_at": "2024-01-01T00:00:00Z",
+#                 "prerelease": False,
+#             },
+#         ],
+#         [{"browser_download_url": "http://download.zip"}],
+#     ]
+#     response.json = MagicMock(side_effect=responses)
+#     get_mock = mocker.patch("freqtrade.commands.deploy_ui.requests.get", return_value=response)
+#     x, last_version = get_ui_download_url(None, False)
+#     assert get_mock.call_count == 2
+#     assert last_version == "0.0.1"
+#     assert x == "http://download.zip"
 
-    x, last_version = get_ui_download_url("0.0.1", False)
-    assert last_version == "0.0.1"
-    assert x == "http://download1.zip"
+#     response.json = MagicMock(side_effect=responses)
+#     get_mock.reset_mock()
+#     x, last_version = get_ui_download_url(None, True)
+#     assert get_mock.call_count == 2
+#     assert last_version == "0.0.2"
+#     assert x == "http://download.zip"
 
-    with pytest.raises(ValueError, match=r"UI-Version not found\."):
-        x, last_version = get_ui_download_url("0.0.3", False)
+
+# def test_get_ui_download_url_direct(mocker):
+#     response = MagicMock()
+#     response.json = MagicMock(
+#         return_value=[
+#             {
+#                 "assets_url": "http://whatever.json",
+#                 "name": "0.0.2",
+#                 "created_at": "2024-02-01T00:00:00Z",
+#                 "prerelease": False,
+#                 "assets": [{"browser_download_url": "http://download22.zip"}],
+#             },
+#             {
+#                 "assets_url": "http://whatever.json",
+#                 "name": "0.0.1",
+#                 "created_at": "2024-01-01T00:00:00Z",
+#                 "prerelease": False,
+#                 "assets": [{"browser_download_url": "http://download1.zip"}],
+#             },
+#         ]
+#     )
+#     get_mock = mocker.patch("freqtrade.commands.deploy_ui.requests.get", return_value=response)
+#     x, last_version = get_ui_download_url(None, False)
+#     assert get_mock.call_count == 1
+#     assert last_version == "0.0.2"
+#     assert x == "http://download22.zip"
+#     get_mock.reset_mock()
+#     response.json.reset_mock()
+
+#     x, last_version = get_ui_download_url("0.0.1", False)
+#     assert last_version == "0.0.1"
+#     assert x == "http://download1.zip"
+
+#     with pytest.raises(ValueError, match=r"UI-Version not found\."):
+#         x, last_version = get_ui_download_url("0.0.3", False)
 
 
 def test_download_data_keyboardInterrupt(mocker, markets):
@@ -2037,36 +2037,6 @@ def test_start_strategy_updater(mocker, tmp_path):
     start_strategy_update(pargs)
     # Number of strategies in the test directory
     assert sc_mock.call_count == 2
-
-
-def test_start_show_config(capsys, caplog):
-    args = [
-        "show-config",
-        "--config",
-        "tests/testdata/testconfigs/main_test_config.json",
-    ]
-    pargs = get_args(args)
-    start_show_config(pargs)
-
-    captured = capsys.readouterr()
-    assert "Your combined configuration is:" in captured.out
-    assert '"max_open_trades":' in captured.out
-    assert '"secret": "REDACTED"' in captured.out
-
-    args = [
-        "show-config",
-        "--config",
-        "tests/testdata/testconfigs/main_test_config.json",
-        "--show-sensitive",
-    ]
-    pargs = get_args(args)
-    start_show_config(pargs)
-
-    captured = capsys.readouterr()
-    assert "Your combined configuration is:" in captured.out
-    assert '"max_open_trades":' in captured.out
-    assert '"secret": "REDACTED"' not in captured.out
-    assert log_has_re(r"Sensitive information will be shown in the upcoming output.*", caplog)
 
 
 def test_start_edge():

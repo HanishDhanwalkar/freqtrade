@@ -129,7 +129,22 @@ def load_data(
                 result[pair] = DataFrame(columns=["date", "open", "close", "high", "low", "volume"])
 
     if fail_without_data and not result:
-        raise OperationalException("No data found. Terminating.")
+        pairs_str = ", ".join(pairs) if pairs else "none"
+        timerange_str = f"timerange {timerange}" if timerange else "no timerange specified"
+        error_msg = (
+            f"No data found. Terminating.\n"
+            f"  Pairs requested: {pairs_str}\n"
+            f"  Timeframe: {timeframe}\n"
+            f"  Data directory: {datadir}\n"
+            f"  Data format: {data_format}\n"
+            f"  Candle type: {candle_type}\n"
+            f"  Timerange: {timerange_str}\n"
+            f"\nTo fix this issue:\n"
+            f"  1. Ensure data files exist in {datadir}\n"
+            f"  2. Check that pair names match the data files (e.g., 'BTC/USDT' -> 'BTC_USDT-{timeframe}.{data_format}')\n"
+            f"  3. Download data using: freqtrade download-data --exchange <exchange> --pairs {' '.join(pairs)} --timeframes {timeframe}"
+        )
+        raise OperationalException(error_msg)
     return result
 
 
@@ -813,7 +828,7 @@ def download_data(
                 trading_mode=config.get("trading_mode", "spot"),
                 prepend=config.get("prepend_data", False),
                 progress_tracker=progress_tracker,
-                candle_types=config.get("candle_types"),
+                candle_types=config.get("candle_types", "spot"),
                 no_parallel_download=config.get("no_parallel_download", False),
             )
     finally:
